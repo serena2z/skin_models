@@ -13,7 +13,7 @@ class CustomImageDataset(Dataset):
         super().__init__()
         self.img_folder = img_folder
         self.mask_folder = mask_folder
-        self.img_names = os.listdir(img_folder)
+        self.img_names = [f for f in os.listdir(img_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
         self.transforms = transforms
 
     def __len__(self):
@@ -106,7 +106,7 @@ class RunImageDataset(Dataset):
     def __init__(self, img_folder):
         super().__init__()
         self.img_folder = img_folder
-        self.img_names = os.listdir(img_folder)
+        self.img_names = [f for f in os.listdir(img_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
 
     def __len__(self):
         return len(self.img_names)
