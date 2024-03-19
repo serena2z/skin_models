@@ -1,115 +1,12 @@
 import argparse
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
 import torch
-from torch.utils.data import Dataset, DataLoader
-import torchvision.transforms as tf
-import random
+from torch.utils.data import DataLoader
+import os
 import torchvision.models.segmentation
-import torchvision.transforms.functional as F
-from PIL import Image, ImageOps
-
-WIDTH = HEIGHT = 512
-
-#Q1: Do we want to add error files for pixels that are not 0 or 1?
-#Q2: Do we want to add validation split native to the training script? VS. Having them as separate arguments?
-# Folder path works as well (if they upload a folder)
-
-class CustomImageDataset(Dataset):
-    def __init__(self, df, img_path, mask_path, transforms):
-        super().__init__()
-        self.df = df
-        self.img_path = img_path
-        self.mask_path = mask_path
-        self.transforms = transforms
-
-    def __len__(self):
-        return self.df.shape[0]
-
-    def __getitem__(self, index):
-        img_location = self.df[self.img_path].iloc[index]
-        mask_location = self.df[self.mask_path].iloc[index]
-        try:
-            image = ImageOps.exif_transpose(Image.open(img_location).convert('RGB'))
-            mask = ImageOps.exif_transpose(Image.open(mask_location).convert('L'))
-
-        except:
-            random_idx = np.random.choice(self.df.shape[0])
-            with open('none_importable_images.txt','a+') as fh:
-                fh.write(img_location +', ' + self.df[self.img_path].iloc[random_idx] + '\n')                
-            return self.__getitem__(random_idx)
-        image_width, image_height = image.size
-        if self.transforms:
-            image, mask = self.transform(image, mask)
-        else: 
-            image = tf.Resize((HEIGHT, WIDTH))(image)
-            image = tf.ToTensor()(image)
-            image = tf.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(image)
-
-            mask = tf.Resize((HEIGHT, WIDTH), tf.InterpolationMode.NEAREST)(mask)
-            mask_np = np.array(mask, dtype=np.uint8)
-            mask_np = mask_np / np.max(np.abs(mask_np)) if ((len(np.unique(mask_np)) != 1) or (np.sum(mask_np) != 0)) else mask_np
-            mask_np = mask_np.astype(np.float32)
-            mask = tf.ToTensor()(mask_np)
-        return image, mask, image_height, image_width, img_location
+from dataloader import CustomImageDataset
     
-    def transform(self, image, mask):
-        # RESIZE DISTORTION CORRECTION
-        # randomly crop the longer dimension up to making the image square
-        # prevents performance decrease due to distortion during resizing
-        # and squishing of image along one dimension due it not being square
-        if random.random() > 0.3:
-            w,h = image.size
-            l,t = (0,0)
-            hw_diff = abs(w - h)
-            offset = random.randint(0, hw_diff)
-            if w<h:
-                h =  h - offset
-                t = int(offset/2)
-            elif w>h:
-                w = w - offset
-                l = int(offset/2)
-            image = F.crop(image,top = t, left = l, height = h, width = w)
-            mask = F.crop(mask,top = t, left = l, height = h, width = w)
-        # RESIZE
-        image = tf.Resize((HEIGHT, WIDTH))(image)
-        mask = tf.Resize((HEIGHT, WIDTH), tf.InterpolationMode.NEAREST)(mask)
-        # RANDOM HORIZONTAL FLIP
-        if random.random() > 0.5:
-            image = F.hflip(image)
-            mask = F.hflip(mask)
-        # RANDOM VERTICAL FLIP
-        if random.random() > 0.5:
-            image = F.vflip(image)
-            mask = F.vflip(mask)
-        # RANDOM AFFINE - ROTATION, TRANSLATION, SCALE, SHEAR
-        if random.random() > 0.3:
-            degree, translate, scale, shear = tf.RandomAffine.get_params(degrees=[-90, 90], translate=[0.3, 0.3], scale_ranges=[0.75, 1.25], shears=[0, 0], img_size=(height, width))
-            image = F.affine(image, degree, translate, scale, shear, interpolation=tf.InterpolationMode.BILINEAR)
-            mask = F.affine(mask, degree, translate, scale, shear, interpolation=tf.InterpolationMode.NEAREST)
-        # COLOR JITTER
-        order, brightness, contrast, saturation, hue = tf.ColorJitter.get_params(brightness=[0.9, 1.1], contrast=[0.9, 1.1], saturation=[0.9, 1.1], hue=[-0.1, 0.1])
-        # apply the color jitter in the order specified
-        for i in order:
-            if i == 0:
-                image = F.adjust_brightness(image, brightness)
-            elif i == 1:
-                image = F.adjust_contrast(image, contrast)
-            elif i == 2:
-                image = F.adjust_saturation(image, saturation)
-            elif i == 3:
-                image = F.adjust_hue(image, hue)
-        # TO TENSOR
-        image = tf.ToTensor()(image)
-        mask_np = np.array(mask,dtype=np.uint8)
-        mask_np = mask_np/np.max(np.abs(mask_np)) if ((len(np.unique(mask_np)) != 1) | (np.sum(mask_np)!=0))  else mask_np
-        mask_np = mask_np.astype(np.float32)
-        mask_np = tf.ToTensor()(mask_np)
-        # NORMALIZE
-        image = tf.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])(image)        
-        return image, mask
-
 def train(dataloader, save_dir, device, epochs, val_dataloader=None):
     device = torch.device(device)
     model = torchvision.models.segmentation.deeplabv3_resnet50(pretrained=True)
@@ -117,12 +14,15 @@ def train(dataloader, save_dir, device, epochs, val_dataloader=None):
     model = model.to(device) 
     loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # Adjust the learning rate as needed
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=25, gamma=0.1)
     best_vloss = 1_000_000.
     best_vdice = 0.
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
     for epoch in range(epochs):
         print('EPOCH {}:'.format(epoch))
         model.train(True)
-        avg_loss, avg_dice = train_one_epoch(dataloader, model, optimizer, device, loss_fn)
+        avg_loss, avg_dice = train_one_epoch(dataloader, model, optimizer, device, loss_fn, scheduler)
         print('Training Loss: {}, Training Dice Score: {}'.format(avg_loss, avg_dice))
         model.train(False)
         if val_dataloader:
@@ -202,46 +102,43 @@ def dice_score(seg, gt, k=1):
 
 def main():
     parser = argparse.ArgumentParser(description="Semantic Segmentation Training with DeepLabV3")
-    parser.add_argument("--data_path", type=str, default="./data.csv", help="Path to the dataset")
-    parser.add_argument("--col_name", type=str, default="file_name", help="Name of the column containing the image file names")
-    parser.add_argument("--mask_col_name", type=str, default="mask_file_name", help="Name of the column containing the mask file names")
-    parser.add_argument("--save_dir", type=str, default="./masks", help="Directory to save segmentation masks")
+    parser.add_argument("--img_folder", type=str, default="./images", help="Path to the image folder")
+    parser.add_argument("--mask_folder", type=str, default="./masks", help="Path to the mask folder")
     parser.add_argument("-transforms", action="store_true", help="Apply data augmentation")
     parser.add_argument("--device", type=str, default="cpu", help="Device for training (cuda:0 or cpu)")
     parser.add_argument("--batch_size", type=int, default=2, help="Batch size for dataloader")
     parser.add_argument("--num_workers", type=int, default=1, help="Number of workers for dataloader")
-    parser.add_argument("--epochs", type=int, default=150, help="Number of training epochs")
-    # validation split
-    parser.add_argument("-val", action="store_true", help="Add validation dataset")
-    parser.add_argument("--val_data_path", type=str, default="./val_data.csv", help="Path to the validation dataset")
-    parser.add_argument("--val_col_name", type=str, default="file_name", help="Name of the column containing the image file names")
-    parser.add_argument("--val_mask_col_name", type=str, default="mask_file_name", help="Name of the column containing the mask file names")
+    parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs")
+    parser.add_argument("--save_dir", type=str, default="./models", help="Path to save the trained model")
 
+    # Add validation arguments
+    parser.add_argument("--val", action="store_true", help="Use validation dataset")
+    parser.add_argument("--val_img_folder", type=str, default="./val_images", help="Path to the validation image folder")
+    parser.add_argument("--val_mask_folder", type=str, default="./val_masks", help="Path to the validation mask folder")
+    
     args = parser.parse_args()
 
-    data_path = args.data_path
-    col_name = args.col_name
-    mask_col_name = args.mask_col_name
-    save_dir = args.save_dir
+    img_folder = args.img_folder
+    mask_folder = args.mask_folder
     transforms = args.transforms
     device = args.device
     batch_size = args.batch_size
     num_workers = args.num_workers
     epochs = args.epochs
+    save_dir = args.save_dir
     val = args.val
-    val_data_path = args.val_data_path
-    val_col_name = args.val_col_name
-    val_mask_col_name = args.val_mask_col_name
+    val_img_folder = args.val_img_folder
+    val_mask_folder = args.val_mask_folder
 
-    dataset = CustomImageDataset(pd.read_csv(data_path), col_name, mask_col_name, transforms)
+    dataset = CustomImageDataset(img_folder, mask_folder, transforms)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
     if val:
-        val_dataset = CustomImageDataset(pd.read_csv(val_data_path), val_col_name, val_mask_col_name, transforms)
-        val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+        val_dataset = CustomImageDataset(val_img_folder, val_mask_folder, transforms)
+        val_dataloader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
         train(dataloader, save_dir, device, epochs, val_dataloader)
     else:
         train(dataloader, save_dir, device, epochs)
-            
+
 if __name__ == "__main__":
     main()

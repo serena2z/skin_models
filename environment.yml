@@ -1,0 +1,35 @@
+name: skin_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - _openmp_mutex=5.1=1_gnu
+  - absl-py
+  - argparse
+  - certifi
+  - colorama
+  - cycler
+  - cv2
+  - dataloader
+  - detectron2
+  - filelock
+  - fvcore
+  - iopath
+  - joblib
+  - json
+  - numpy
+  - pandas
+  - pillow
+  - pip
+  - python
+  - pytorch
+  - pyyaml
+  - requests
+  - torch
+  - torchsummary
+  - torchmetrics
+  - torchvision
+  - tqdm
+  - xxhash
+  - zlib
