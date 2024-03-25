@@ -66,7 +66,7 @@ class RotatedBoundingBoxTrainer(DefaultTrainer):
     def build_train_loader(cls, cfg):
         return build_detection_train_loader(cfg, mapper=dataset_mapper)
 
-def train_detectron(train_directory, test_directory, num_gpus=0):
+def train_detectron(train_directory, test_directory, save_dir, device):
     class_labels = ["lesion"]
 
     train_dataset_function = get_labelme_dataset_function(
@@ -90,11 +90,11 @@ def train_detectron(train_directory, test_directory, num_gpus=0):
         os.path.abspath(__file__)), "rotated_bbox_config_mod.yaml"))
     cfg.DATASETS.TRAIN = (train_dataset_name,)
     cfg.DATASETS.TEST = (test_dataset_name,)
-    model_save_dir = './model'
-    if not os.path.exists(model_save_dir):
-        os.makedirs(model_save_dir)
-    cfg.OUTPUT_DIR = model_save_dir
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    cfg.OUTPUT_DIR = save_dir
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = len(class_labels)
+    cfg.MODEL.DEVICE='cpu'
 
     trainer = RotatedBoundingBoxTrainer(cfg)
     trainer.resume_or_load(resume=False)
@@ -102,12 +102,13 @@ def train_detectron(train_directory, test_directory, num_gpus=0):
 
 def main():
     parser = argparse.ArgumentParser(description="Train a model using Detectron2 with rotated bounding boxes.")
-    parser.add_argument("train_directory", type=str, help="Path to the training dataset directory")
-    parser.add_argument("test_directory", type=str, help="Path to the testing dataset directory")
-    parser.add_argument("--num-gpus", type=int, default=0, help="Number of GPUs to use, default is 0")
+    parser.add_argument("--train_dir", type=str, help="Path to the training dataset directory")
+    parser.add_argument("--test_dir", type=str, help="Path to the testing dataset directory")
+    parser.add_argument("--save_dir", type=str, default="./model", help="Directory to save the model")
+    parser.add_argument("--device", type=str, default="cpu", help="Device to train the model on")
     args = parser.parse_args()
 
-    train_detectron(args.train_directory, args.test_directory, args.num_gpus)
+    train_detectron(args.train_dir, args.test_dir, args.save_dir, args.device)
 
 if __name__ == "__main__":
     main()

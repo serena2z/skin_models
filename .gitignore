@@ -1,5 +1,6 @@
 # folders for development
 box_cropper/
+box_lesion_segmenter/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -9,87 +9,99 @@ import pandas as pd
 from tqdm.contrib import tzip
 import argparse
 
-def inference(image_paths, weights, out_paths):
+def inference(image_paths, weights, output_file, device):
     class_labels = ["lesion"]
-    metadata = MetadataCatalog.get("ship_dataset").set(thing_classes=class_labels)
 
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
-    cfg.merge_from_file("rotated_bbox_config_mod.yaml")
+    cfg.merge_from_file(os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), "rotated_bbox_config_mod.yaml"))
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = len(class_labels)
     cfg.MODEL.WEIGHTS = weights
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.0
+    cfg.MODEL.DEVICE = device
 
     predictor = DefaultPredictor(cfg)
 
-    for image_path, out_path in tzip(image_paths, out_paths):
-        img = cv2.imread(image_path)
-        outputs = predictor(img)
+    # make it so that it overwrites the file if it already exists
+    with open(output_file, 'w') as fh:
+        if os.path.getsize(fh.name) == 0:
+            fh.write("image_path,highest_score_box,box_points,box_points_square,highest_score\n")
+        for image_path in image_paths:
+            img = cv2.imread(image_path)
+            outputs = predictor(img)
 
-        # Save the inference results to a text file
-        save_results(image_path, out_path, outputs)
+            # Save the inference results to a text file
+            save_results(fh, image_path, outputs)
 
-def save_results(image_path, out_path, outputs):
-    with open('predicted_boxes.txt','a+') as fh:
-        if os.path.getsize('predicted_boxes.txt') == 0:
-            fh.write("image_path,out_path,box_points,box_points_square,highest_score\n")
+def save_results(fh, image_path, outputs):
+    # file paths
+    fh.write(image_path)
+    fh.write(',')
 
-        # file paths
-        fh.write(image_path)
-        fh.write(',')
-        fh.write(out_path)
-        fh.write(',')
-        
-        pred_boxes = outputs["instances"].pred_boxes.tensor.cpu().numpy()
-        scores = outputs["instances"].scores.cpu().numpy()
+    pred_boxes = outputs["instances"].pred_boxes.tensor.cpu().numpy()
+    scores = outputs["instances"].scores.cpu().numpy()
 
-        if len(scores) > 0:
-            # Find the index of the box with the highest score
-            highest_score_index = scores.argmax()
+    if len(scores) > 0:
+        # Find the index of the box with the highest score
+        highest_score_index = scores.argmax()
 
-            # Select the box and score with the highest confidence
-            highest_score_box = pred_boxes[highest_score_index]
-            highest_score = scores[highest_score_index]
+        # Select the box and score with the highest confidence
+        highest_score_box = pred_boxes[highest_score_index]
+        highest_score = scores[highest_score_index]
 
-            # Convert the rotated box to a set of points
-            box_points = cv2.boxPoints((highest_score_box[:2], highest_score_box[2:4], highest_score_box[4]))
-            box_points = np.int0(box_points)  # Convert to integer
+        # Convert the rotated box to a set of points
+        box_points = cv2.boxPoints((highest_score_box[:2], highest_score_box[2:4], highest_score_box[4]))
+        box_points = np.intp(box_points)  # Convert to integer
 
-            # Save highest_score_box
-            fh.write('"[')
-            for ii, line in enumerate(highest_score_box):
-                if ii != 0:
-                    fh.write(f",{line}")
-                else:
-                    fh.write(f"{line}")
-            fh.write(']"')
+        # Save highest_score_box
+        # safe highest_score_box [[center_x,center_y],[w,h],angle]
+        fh.write('"[')
+        for ii, line in enumerate(highest_score_box):
+            if ii != 0:
+                fh.write(f",{line}")
+            else:
+                fh.write(f"{line}")
+        fh.write(']"')
 
-            fh.write(',' + str(highest_score) + '\n')
+        # save box_points
+        box_points_str = ','.join([f"[{x},{y}]" for x, y in box_points])
+        fh.write(',"[')
+        fh.write(box_points_str)
+        fh.write(']"')
 
-            # Save box_points_square
-            wh_square = [np.average(highest_score_box[2:4]), np.average(highest_score_box[2:4])]
-            box_points_square = cv2.boxPoints((highest_score_box[:2], wh_square, highest_score_box[4]))
-            box_points_square = np.int0(box_points_square)
+        # Save box_points_square
+        wh_square = [np.average(highest_score_box[2:4]), np.average(highest_score_box[2:4])]
+        box_points_square = cv2.boxPoints((highest_score_box[:2], wh_square, highest_score_box[4]))
+        box_points_square = np.intp(box_points_square)
 
-            fh.write(',"[')
-            for ii, line in enumerate(box_points_square):
-                if ii != 0:
-                    fh.write(f",{line}")
-                else:
-                    fh.write(f"{line}")
-            fh.write(']"')
+        # Format box_points_square as a string with commas separating coordinates
+        box_points_square_str = ','.join([f"[{x},{y}]" for x, y in box_points_square])
 
-            fh.write(',' + str(highest_score) + '\n')
+        fh.write(',"[')
+        fh.write(box_points_square_str)  # Write formatted box_points_square
+        fh.write(']"')
 
-def main(args):
-    df = pd.read_csv(args.csv_file, index_col=0)
-    image_paths = df.image_path.tolist()
-    out_paths = df.predmask_boxoverlay_path.tolist()
-    inference(image_paths, args.weights, out_paths)
+        fh.write(',' + str(highest_score) + '\n')
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Perform inference using a trained model.")
     parser.add_argument("--csv_file", type=str, help="Path to the CSV file containing image paths", required=True)
-    parser.add_argument("--weights", type=str, help="Path to the trained model weights file", required=True)
+    parser.add_argument("--col_name", type=str, help="Name of the column containing image paths", required=True)
+    parser.add_argument("--model", type=str, help="Path to the trained model weights file", required=True)
+    parser.add_argument("--output_file", type=str, default="./predicted.txt", help="Path to the output file for saving inference results", required=True)
+    parser.add_argument("--device", type=str, default="cpu", help="Device to use for inference (default: cpu)")
     args = parser.parse_args()
-    main(args)
+
+    csv_file = args.csv_file
+    col_name = args.col_name
+    model = args.model
+    output_file = args.output_file
+    device = args.device
+
+    df = pd.read_csv(csv_file, header=0)
+    image_paths = df[col_name].tolist()
+    inference(image_paths, model, output_file, device)
+
+if __name__ == "__main__":
+    main()

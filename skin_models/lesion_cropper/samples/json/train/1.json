@@ -1,0 +1,36 @@
+{
+    "version": "5.0.1",
+    "flags": {},
+    "orig_name": "angelica-echeverry-5KY5LP_zc44-unsplash.jpg",
+    "orig_path": "/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/skin_segmenter/samples/images/angelica-echeverry-5KY5LP_zc44-unsplash.jpg",
+    "shapes": [
+        {
+            "label": "lesion",
+            "points": [
+                [
+                    309,
+                    312
+                ],
+                [
+                    237,
+                    296
+                ],
+                [
+                    221,
+                    368
+                ],
+                [
+                    293,
+                    384
+                ]
+            ],
+            "group_id": null,
+            "shape_type": "polygon",
+            "flags": {}
+        }
+    ],
+    "imagePath": "1.png",
+    "imageData": null,
+    "imageHeight": 6000,
+    "imageWidth": 4000
+}

@@ -7,7 +7,7 @@ import argparse
 
 def create_detectron_json(df_file, output_dir):
     # read in the dataframe file
-    df = pd.read_csv(df_file, index_col=0)
+    df = pd.read_csv(df_file, header=0)
     df.reset_index(drop=True, inplace=True)
 
     # detectron index
@@ -69,8 +69,8 @@ def create_detectron_json(df_file, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Convert annotations to Detectron2 JSON format.")
-    parser.add_argument("df_file", type=str, help="Path to the dataframe file")
-    parser.add_argument("output_dir", type=str, help="Directory to save the output JSON files")
+    parser.add_argument("--df_file", type=str, help="Path to the dataframe file")
+    parser.add_argument("--output_dir", type=str, help="Directory to save the output JSON files")
     args = parser.parse_args()
 
     create_detectron_json(args.df_file, args.output_dir)

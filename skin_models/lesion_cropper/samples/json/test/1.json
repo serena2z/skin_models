@@ -1,0 +1,36 @@
+{
+    "version": "5.0.1",
+    "flags": {},
+    "orig_name": "premium_photo-1702599137947-0b266cfbc732.jpg",
+    "orig_path": "/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/ruler_segmenter/samples/images/premium_photo-1702599137947-0b266cfbc732.jpg",
+    "shapes": [
+        {
+            "label": "lesion",
+            "points": [
+                [
+                    188,
+                    125
+                ],
+                [
+                    204,
+                    125
+                ],
+                [
+                    204,
+                    109
+                ],
+                [
+                    188,
+                    109
+                ]
+            ],
+            "group_id": null,
+            "shape_type": "polygon",
+            "flags": {}
+        }
+    ],
+    "imagePath": "1.png",
+    "imageData": null,
+    "imageHeight": 1961,
+    "imageWidth": 2940
+}
