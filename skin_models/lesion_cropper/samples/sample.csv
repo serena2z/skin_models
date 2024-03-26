@@ -1,8 +1,0 @@
-file_name,x1,y1,x2,y2,x3,y3,x4,y4,subset
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/skin_segmenter/samples/images/amanda-dalbjorn-fvInY-Gh7sc-unsplash.jpg,188,125,204,125,204,109,188,109,train
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/skin_segmenter/samples/images/angelica-echeverry-5KY5LP_zc44-unsplash.jpg,309,312,237,296,221,368,293,384,train
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/skin_segmenter/samples/images/markus-spiske-E_Jb9rSSgC8-unsplash.jpg,188,125,204,125,204,109,188,109,train
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/skin_segmenter/samples/images/wilhelm-gunkel-iKG7YXopoWQ-unsplash.jpg,188,125,204,125,204,109,188,109,val
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/skin_segmenter/samples/images/womanizer-toys-8oB43mw658c-unsplash.jpg,188,125,204,125,204,109,188,109,val
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/ruler_segmenter/samples/images/premium_photo-1702599061442-448681691943.jpg,188,125,204,125,204,109,188,109,test
-/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/ruler_segmenter/samples/images/premium_photo-1702599137947-0b266cfbc732.jpg,188,125,204,125,204,109,188,109,test
