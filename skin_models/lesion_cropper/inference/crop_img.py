@@ -87,10 +87,10 @@ def add_padding(pil_img, left, right, top, bottom, color):
 
 def main():
     parser = argparse.ArgumentParser(description='Image Cropping and Resizing')
-    parser.add_argument('--input_file', type=str, default='predicted_boxes.txt',
-                        help='Path to the input file containing predicted boxes')
+    parser.add_argument('--input_file', type=str, default='box_predictions.txt',
+                        help='Path to the input file containing predicted boxes', required=True)
     parser.add_argument('--save_dir', type=str, default='./skin_models/lesion_cropper/samples',
-                        help='Directory to save the cropped and resized images')
+                        help='Directory to save the cropped and resized images', required=True)
     args = parser.parse_args()
 
     input_file = args.input_file
@@ -108,7 +108,7 @@ def main():
 
     for idx in tqdm(df.index.tolist()):
         img_loc = df.loc[idx, 'image_path']
-        box_cx, box_cy, box_w, box_h, angle = ast.literal_eval(df.loc[idx, 'highest_score_box'])
+        box_cx, box_cy, box_w, box_h, angle = ast.literal_eval(df.loc[idx, 'box_center'])
 
         img = ImageOps.exif_transpose(Image.open(img_loc)).convert('RGB')
 

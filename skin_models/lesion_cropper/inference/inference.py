@@ -23,7 +23,7 @@ def inference(image_paths, weights, output_file, device):
     # make it so that it overwrites the file if it already exists
     with open(output_file, 'w') as fh:
         if os.path.getsize(fh.name) == 0:
-            fh.write("image_path,highest_score_box,box_points,box_points_square,highest_score\n")
+            fh.write("image_path,box_center,box_points,box_points_square,highest_score\n")
         for image_path in image_paths:
             img = cv2.imread(image_path)
             outputs = predictor(img)
@@ -86,7 +86,7 @@ def main():
     parser = argparse.ArgumentParser(description="Perform inference using a trained model.")
     parser.add_argument("--img_folder", type=str, help="Path to the image folder", required=True)
     parser.add_argument("--model", type=str, help="Path to the trained model weights file", required=True)
-    parser.add_argument("--output_file", type=str, default="./predicted.txt", help="Path to the output file for saving inference results")
+    parser.add_argument("--output_file", type=str, default="box_predictions.txt", help="Path to the output file for saving inference results")
     parser.add_argument("--device", type=str, default="cpu", help="Device to use for inference (default: cpu)")
     args = parser.parse_args()
 

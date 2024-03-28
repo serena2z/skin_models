@@ -41,8 +41,8 @@ def overlay_boxes(df, output_dir, thickness=2, resize=False):
 
 def main():
     parser = argparse.ArgumentParser(description="Overlay predicted boxes onto images.")
-    parser.add_argument("--input_file", type=str, help="Path to the text file containing image paths and overlay boxes", required=True, default="predicted_boxes.txt")
-    parser.add_argument("--save_dir", type=str, help="Name of the output folder containing image visualizations", required=True, default="output")
+    parser.add_argument("--input_file", type=str, help="Path to the text file containing image paths and overlay boxes", required=True, default="box_predictions.txt")
+    parser.add_argument("--save_dir", type=str, help="Name of the output folder to save image visualizations", required=True, default="output")
     parser.add_argument("--thickness", type=int, help="Thickness to use to draw the boxes", required=False, default=2)
     parser.add_argument("--resize", action="store_true", help="Resizes the smaller side of the image to 512 while keeping aspect ratio constant, used to reduce image storage", required=False)
     args = parser.parse_args()

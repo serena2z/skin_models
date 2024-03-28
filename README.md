@@ -51,7 +51,7 @@ To perform inference using our trained model, follow these steps:
   
   - `inference.py`: Main script for running the model and computing the cropped box coordinates around each lesion.
   - `box_overlay.py`: Handles visualizations of the cropped box around the lesion.
-  - `crop_img.py`: Allows you to crop the image to the cropped box.
+  - `crop_img.py`: Generates a crop of the image to the cropped box.
   - `samples`: Contains sample files that you can use.
 
 2. **Run Inference**
@@ -59,33 +59,45 @@ To perform inference using our trained model, follow these steps:
   To run `inference.py`, you'll need a CSV file with all your image names (the complete path) in one column. Use the following command in the terminal:
   
   ```
-  python inference.py --csv_file CSV_FILE --col_name COL_NAME --model MODEL --output_file OUTPUT_FILE [--device DEVICE]
+  python inference.py --img_folder IMG_FOLDER --model MODEL [--output_file OUTPUT_FILE] [--device DEVICE]
   ```
   
+  `IMG_FOLDER`: Path to the folder where your images are stored.
+  `MODEL`: Path to the trained model weights file.
+  `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is box_predictions.txt.
+  `DEVICE` [OPTIONAL]: Device to use for inference, default is cpu.
+
   The output generated from `inference.py` will be a text file with the images and the segmented box coordinates. In particular, you'll see:
   
   - `image_path`: Column for image path
-  - `highest_score_box`:  [[center_x,center_y],[w,h],angle]
-  - `box_points`: All 4 box coordinates in the form of [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
-  - `box_points_square`: Same as `box_points` but using a square box instead of a rectangular box.
+  - `box_center`: Includes important box measurements including center coordinates, width, height, and angle of the form [[center_x, center_y],[width, height], angle]
+  - `box_points`: All 4 box corner coordinates in the form of [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
+  - `box_points_square`: Same as `box_points` but resizing the corner coordinates to form a square box instead of a rectangular box.
   - `highest_score`: Score of the best fitting box.
 
 3. **Visualize Boxes**
 
-  To visualize these boxes on the original images, use `box_overlay.py` with your text file output from `inference.py` as input.
+  To visualize these boxes on the original images, use `box_overlay.py`.
   
   ```
-  box_overlay.py [-h] --txt_file TXT_FILE --output_dir OUTPUT_DIR
+  box_overlay.py --input_file INPUT_FILE --save_dir SAVE_DIR [--thickness THICKNESS] [--resize]
   ```
+
+  `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
+  `SAVE_DIR`: Name of the output folder to save the image visualizations.
+  `THICKNESS` [OPTIONAL]: Thickness used to visualize the boundaries of the boxes, default is 2.
+  `RESIZE` [OPTIONAL]: If you include this flag, it will resize the smaller side of the image to 512 while keeping aspect ratio constant to reduce image storage, default is false.
 
 4. **Crop Images**
 
-  Lastly, you can crop your images to the lesion using `crop_image.py` with the same text file output from `inference.py` as input.
+  Lastly, you can crop your images to the lesion using `crop_image.py`.
   
   ```
-  crop_images.py [-h] --input_file INPUT_FILE --save_dir SAVE_DIR
+  crop_img.py --input_file INPUT_FILE --save_dir SAVE_DIR
   ```
-  
+  `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
+  `SAVE_DIR`: Name of the output folder to save the cropped image.
+
   These organized steps streamline the process of performing inference and post-processing on lesion images using our model.
 
 ### Train
