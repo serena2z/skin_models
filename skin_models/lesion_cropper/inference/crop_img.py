@@ -85,53 +85,6 @@ def add_padding(pil_img, left, right, top, bottom, color):
     return result
 
 
-def zoom_resize_crop(img, box_cx, box_cy, box_wh, angle=0, zoom_out=2, out_size=1024):
-    """
-    Perform zoom, resize, and crop operations on the image.
-
-    Args:
-        img (PIL.Image): Input image.
-        box_cx (float): X-coordinate of the center of the box.
-        box_cy (float): Y-coordinate of the center of the box.
-        box_wh (float): Average width/height of the box.
-        angle (float): Rotation angle of the box.
-        zoom_out (float): Zoom factor.
-        out_size (int): Output size of the image.
-
-    Returns:
-        PIL.Image: Zoomed, resized, and cropped image.
-    """
-    zoom_factor = zoom_out
-    box_avg_wh = np.average(box_wh)
-    orig_zoom_box_wh = int(np.ceil(zoom_factor * box_avg_wh))
-
-    _wh = int(np.ceil(np.sqrt(2) * orig_zoom_box_wh)) + 1
-
-    _l = max(0, box_cx - int(np.ceil(_wh / 2)))
-    _t = max(0, box_cy - int(np.ceil(_wh / 2)))
-    _r = min(img.size[0] - 1, box_cx + int(np.ceil(_wh / 2)))
-    _b = min(img.size[1] - 1, box_cy + int(np.ceil(_wh / 2)))
-
-    box_cx -= _l
-    box_cy -= _t
-
-    img = img.crop((_l, _t, _r, _b)).copy()
-
-    new_box_wh = out_size
-    scale_factor = float(new_box_wh) / orig_zoom_box_wh
-
-    new_box_cx = scale_factor * box_cx
-    new_box_cy = scale_factor * box_cy
-
-    new_w = int(np.round(scale_factor * img.size[0]))
-    new_h = int(np.round(scale_factor * img.size[1]))
-
-    new_img = tf.Resize((new_h, new_w), interpolation=tf.InterpolationMode.BICUBIC)(img)
-    crop_img = crop_image_with_padding(new_img, new_box_cx, new_box_cy, new_box_wh, new_box_wh, angle)
-
-    return crop_img
-
-
 def main():
     parser = argparse.ArgumentParser(description='Image Cropping and Resizing')
     parser.add_argument('--input_file', type=str, default='predicted_boxes.txt',
@@ -148,16 +101,9 @@ def main():
     # rewrite the image paths using the save_dir
     df['cropped_image_path'] = df['image_path'].map(lambda x: os.path.join(save_dir, 'images_detectron2box', os.path.splitext(os.path.basename(x))[0] + '.png'))
     df['cropped_image_square_path'] = df['image_path'].map(lambda x: os.path.join(save_dir, 'images_detectron2box_sq', os.path.splitext(os.path.basename(x))[0] + '.png'))
-    df['cropped_image_zoomout2_1024_path'] = df['image_path'].map(lambda x: os.path.join(save_dir, 'images_detectron2box_zoomout2_1024', os.path.splitext(os.path.basename(x))[0] + '.png'))
-    df['cropped_image_zoomout2p5_1024_path'] = df['image_path'].map(lambda x: os.path.join(save_dir, 'images_detectron2box_zoomout2p5_1024', os.path.splitext(os.path.basename(x))[0] + '.png'))
-    df['cropped_image_zoomout3_1024_path'] = df['image_path'].map(lambda x: os.path.join(save_dir, 'images_detectron2box_zoomout3_1024', os.path.splitext(os.path.basename(x))[0] + '.png'))
-    df['cropped_image_zoomout4_1024_path'] = df['image_path'].map(lambda x: os.path.join(save_dir, 'images_detectron2box_zoomout4_1024', os.path.splitext(os.path.basename(x))[0] + '.png'))
-
 
     # Create directories if not exist
-    for subdir in ['images_detectron2box', 'images_detectron2box_sq', 
-                'images_detectron2box_zoomout2_1024', 'images_detectron2box_zoomout2p5_1024',
-                'images_detectron2box_zoomout3_1024', 'images_detectron2box_zoomout4_1024']:
+    for subdir in ['images_detectron2box', 'images_detectron2box_sq']:
         os.makedirs(os.path.join(save_dir, subdir), exist_ok=True)
 
     for idx in tqdm(df.index.tolist()):
@@ -178,22 +124,6 @@ def main():
         box_avg_wh = np.average([box_w, box_h])
         crop_img = crop_image_with_padding(img, box_cx, box_cy, box_avg_wh, box_avg_wh, angle)
         crop_img.save(df.loc[idx, 'cropped_image_square_path'])
-
-        # Zoom out 2x and resize to 1024x1024
-        crop_img = zoom_resize_crop(img, box_cx, box_cy, np.average([box_w, box_h]), angle=0, zoom_out=2, out_size=1024)
-        crop_img.save(df.loc[idx, 'cropped_image_zoomout2_1024_path'])
-
-        # Zoom out 2.5x and resize to 1024x1024
-        crop_img = zoom_resize_crop(img, box_cx, box_cy, np.average([box_w, box_h]), angle=0, zoom_out=2.5, out_size=1024)
-        crop_img.save(df.loc[idx, 'cropped_image_zoomout2p5_1024_path'])
-
-        # Zoom out 3x and resize to 1024x1024
-        crop_img = zoom_resize_crop(img, box_cx, box_cy, np.average([box_w, box_h]), angle=0, zoom_out=3, out_size=1024)
-        crop_img.save(df.loc[idx, 'cropped_image_zoomout3_1024_path'])
-
-        # Zoom out 4x and resize to 1024x1024
-        crop_img = zoom_resize_crop(img, box_cx, box_cy, np.average([box_w, box_h]), angle=0, zoom_out=4, out_size=1024)
-        crop_img.save(df.loc[idx, 'cropped_image_zoomout4_1024_path']) 
 
 if __name__ == "__main__":
     main()

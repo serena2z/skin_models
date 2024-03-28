@@ -4,7 +4,6 @@ from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 import numpy as np
-import pandas as pd
 import argparse
 
 def inference(image_paths, weights, output_file, device):
@@ -83,22 +82,21 @@ def save_results(fh, image_path, outputs):
         fh.write(',' + str(highest_score) + '\n')
 
 def main():
+    # change to folder
     parser = argparse.ArgumentParser(description="Perform inference using a trained model.")
-    parser.add_argument("--csv_file", type=str, help="Path to the CSV file containing image paths", required=True)
-    parser.add_argument("--col_name", type=str, help="Name of the column containing image paths", required=True)
+    parser.add_argument("--img_folder", type=str, help="Path to the image folder", required=True)
     parser.add_argument("--model", type=str, help="Path to the trained model weights file", required=True)
-    parser.add_argument("--output_file", type=str, default="./predicted.txt", help="Path to the output file for saving inference results", required=True)
+    parser.add_argument("--output_file", type=str, default="./predicted.txt", help="Path to the output file for saving inference results")
     parser.add_argument("--device", type=str, default="cpu", help="Device to use for inference (default: cpu)")
     args = parser.parse_args()
 
-    csv_file = args.csv_file
-    col_name = args.col_name
+    img_folder = args.img_folder
     model = args.model
     output_file = args.output_file
     device = args.device
 
-    df = pd.read_csv(csv_file, header=0)
-    image_paths = df[col_name].tolist()
+    image_paths = [f for f in os.listdir(img_folder) if f.endswith(('.jpg', '.jpeg', '.png'))]
+    image_paths = [os.path.join(img_folder, f) for f in image_paths]
     inference(image_paths, model, output_file, device)
 
 if __name__ == "__main__":

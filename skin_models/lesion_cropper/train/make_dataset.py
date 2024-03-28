@@ -13,7 +13,6 @@ def create_detectron_json(df_file, output_dir):
     # detectron index
     df.loc[df[df.subset == 'train'].index, 'detectron_index'] = range(len(df[df.subset == 'train']))
     df.loc[df[df.subset == 'test'].index, 'detectron_index'] = range(len(df[df.subset == 'test']))
-    df.loc[df[df.subset == 'val'].index, 'detectron_index'] = range(len(df[df.subset == 'val']))
     df['detectron_index'] = df['detectron_index'].astype('int')
 
     os.makedirs(output_dir, exist_ok=True)
@@ -69,11 +68,11 @@ def create_detectron_json(df_file, output_dir):
 
 def main():
     parser = argparse.ArgumentParser(description="Convert annotations to Detectron2 JSON format.")
-    parser.add_argument("--df_file", type=str, help="Path to the dataframe file")
-    parser.add_argument("--output_dir", type=str, help="Directory to save the output JSON files")
+    parser.add_argument("--input_file", type=str, help="Path to the dataframe file")
+    parser.add_argument("--save_dir", type=str, help="Directory to save the output JSON files")
     args = parser.parse_args()
 
-    create_detectron_json(args.df_file, args.output_dir)
+    create_detectron_json(args.input_file, args.save_dir)
 
 if __name__ == "__main__":
     main()
