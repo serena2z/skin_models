@@ -61,11 +61,13 @@ To perform inference using our trained model, follow these steps:
   ```
   python inference.py --img_folder IMG_FOLDER --model MODEL [--output_file OUTPUT_FILE] [--device DEVICE]
   ```
-  
-  `IMG_FOLDER`: Path to the folder where your images are stored.
-  `MODEL`: Path to the trained model weights file.
-  `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is box_predictions.txt.
-  `DEVICE` [OPTIONAL]: Device to use for inference, default is cpu.
+
+  <div class="background: red;">
+  - `IMG_FOLDER`: Path to the folder where your images are stored.
+  - `MODEL`: Path to the trained model weights file.
+  - `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is box_predictions.txt.
+  - `DEVICE` [OPTIONAL]: Device to use for inference, default is cpu.
+  <div>
 
   The output generated from `inference.py` will be a text file with the images and the segmented box coordinates. In particular, you'll see:
   
@@ -83,10 +85,10 @@ To perform inference using our trained model, follow these steps:
   box_overlay.py --input_file INPUT_FILE --save_dir SAVE_DIR [--thickness THICKNESS] [--resize]
   ```
 
-  `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
-  `SAVE_DIR`: Name of the output folder to save the image visualizations.
-  `THICKNESS` [OPTIONAL]: Thickness used to visualize the boundaries of the boxes, default is 2.
-  `RESIZE` [OPTIONAL]: If you include this flag, it will resize the smaller side of the image to 512 while keeping aspect ratio constant to reduce image storage, default is false.
+  - `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
+  - `SAVE_DIR`: Name of the output folder to save the image visualizations.
+  - `THICKNESS` [OPTIONAL]: Thickness used to visualize the boundaries of the boxes, default is 2.
+  - `RESIZE` [OPTIONAL]: If you include this flag, it will resize the smaller side of the image to 512 while keeping aspect ratio constant to reduce image storage, default is false.
 
 4. **Crop Images**
 
@@ -96,8 +98,8 @@ To perform inference using our trained model, follow these steps:
   crop_img.py --input_file INPUT_FILE --save_dir SAVE_DIR
   ```
 
-  `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
-  `SAVE_DIR`: Name of the output folder to save the cropped image.
+  - `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
+  - `SAVE_DIR`: Name of the output folder to save the cropped image.
 
   These organized steps streamline the process of performing inference and post-processing on lesion images using our model.
 
