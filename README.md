@@ -95,6 +95,7 @@ To perform inference using our trained model, follow these steps:
   ```
   crop_img.py --input_file INPUT_FILE --save_dir SAVE_DIR
   ```
+
   `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
   `SAVE_DIR`: Name of the output folder to save the cropped image.
 
