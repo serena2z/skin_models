@@ -122,12 +122,14 @@ To run inference on your images, you can use the following command:
   python run.py --input_file INPUT_FILE --model_path MODEL_PATH [--save_path SAVE_PATH] [--device DEVICE] [--batch_size BATCH_SIZE] [--num_workers NUM_WORKERS]
 ```
 
-`INPUT_FILE`: Path to the predictions from the lesion cropper.
-`MODEL`: Path to the trained model weights file.
-`OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is distance_predictions.csv.
-`DEVICE` [OPTIONAL]: Device to use for inference, default is cpu.
-`BATCH_SIZE` [OPTIONAL]: Batch size to use for inference, default is 2.
-`NUM_WORKERS` [OPTIONAL]: Number of workers to use for inference, default is 1.
+```diff
+- `INPUT_FILE`: Path to the predictions from the lesion cropper.
+- `MODEL`: Path to the trained model weights file.
+- `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is distance_predictions.csv.
+- `DEVICE` [OPTIONAL]: Device to use for inference, default is cpu.
+- `BATCH_SIZE` [OPTIONAL]: Batch size to use for inference, default is 2.
+- `NUM_WORKERS` [OPTIONAL]: Number of workers to use for inference, default is 1.
+```
 
 The output generated from `inference.py` will be a text file with the images and the predicted distances:
 
