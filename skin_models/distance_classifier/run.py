@@ -66,14 +66,14 @@ def main():
 
     df = pd.read_csv(input_file, header=0)
     
-    # comment out if you don't need to extract center_x and center_y from highest_score_box
-    df["center_x"] = None
-    df["center_y"] = None
+    # comment out if you don't need to extract center_x and center_y from box_center
+    # df["center_x"] = None
+    # df["center_y"] = None
 
-    for index, row in df.iterrows():
-        highest_score_box = ast.literal_eval(row["box_center"])
-        df.loc[index, "center_x"] = (highest_score_box[0])
-        df.loc[index, "center_y"] = (highest_score_box[1])
+    # for index, row in df.iterrows():
+    #     highest_score_box = ast.literal_eval(row["box_center"])
+    #     df.loc[index, "center_x"] = (highest_score_box[0])
+    #     df.loc[index, "center_y"] = (highest_score_box[1])
     
     dataset = CustomImageDatasetEval(df)
     dataloader = DataLoader(dataset, batch_size= batch_size, shuffle=False, num_workers = num_workers)

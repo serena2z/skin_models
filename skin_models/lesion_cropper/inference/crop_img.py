@@ -108,7 +108,7 @@ def main():
 
     for idx in tqdm(df.index.tolist()):
         img_loc = df.loc[idx, 'image_path']
-        box_cx, box_cy, box_w, box_h, angle = ast.literal_eval(df.loc[idx, 'box_center'])
+        box_cx, box_cy, box_w, box_h, angle = df.loc[idx, 'center_x'], df.loc[idx, 'center_y'], df.loc[idx, 'width'], df.loc[idx, 'height'], df.loc[idx, 'angle']
 
         img = ImageOps.exif_transpose(Image.open(img_loc)).convert('RGB')
 

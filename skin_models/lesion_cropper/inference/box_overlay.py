@@ -6,9 +6,8 @@ import ast
 import os
 
 def parse_points(box_points_str):
-    points_list = ast.literal_eval(box_points_str)  # Parse string to list
-    ctr = np.array(points_list).reshape((-1,1,2)).astype(np.int32)
-    return ctr
+    points_list =np.array(ast.literal_eval(box_points_str)).astype(np.int32)  # Parse string to list
+    return points_list
 
 def overlay_boxes(df, output_dir, thickness=2, resize=False):
     for index, row in df.iterrows():
