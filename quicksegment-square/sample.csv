@@ -1,0 +1,5 @@
+﻿,image_path,image_file,lesion_box_xmin,lesion_box_ymin,lesion_box_xmax,lesion_box_ymax,report_location_final,diagnosis_final,model_label
+0,images/Image_1.JPG,Image_1.JPG,1368,653,1919,1822,,melanoma,0
+1,images/Image_2.JPG,Image_2.JPG,,,,,forehead,basal cell carcinoma,102
+2,images/Image_3.png,Image_3.png,1025,1632,1328,1937,back,onychomycosis,1
+3,images/Image_4.JPG,Image_4.JPG,1114,1543,1317,1804,foot,,
