@@ -25,11 +25,9 @@ def inference(image_paths, weights, output_file, device):
     with open(output_file, 'w', newline='') as fh:
         writer = csv.writer(fh)
         writer.writerow(["image_path", "center_x", "center_y", "width","height", "angle", "box_points", "box_points_square", "highest_score"])
-        
         for idx, image_path in enumerate(tqdm(image_paths)):
             img = cv2.imread(image_path)
             outputs = predictor(img)
-
             save_results(writer, image_path, outputs)
 
 

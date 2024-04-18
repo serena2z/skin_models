@@ -1,0 +1,3 @@
+image_path,center_x,center_y,width,height,angle,box_points,box_points_square,highest_score
+/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/ruler_segmenter/samples/images/premium_photo-1702599061442-448681691943.jpg,996.20337,876.10394,116.66134,120.05383,-53.18866,"[[1009, 958], [913, 886], [983, 793], [1079, 865]]","[[1008, 958], [913, 888], [984, 793], [1079, 864]]",0.9934737
+/Users/serenazhang/Documents/GevaertLab/SkinProject/Code/Package/skin_models/ruler_segmenter/samples/images/premium_photo-1702599137947-0b266cfbc732.jpg,1921.7557,1084.7908,153.27165,138.96654,-70.75104,"[[1962, 1180], [1830, 1134], [1881, 989], [2012, 1035]]","[[1966, 1177], [1828, 1129], [1876, 991], [2014, 1039]]",0.984571

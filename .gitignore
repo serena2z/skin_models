@@ -2,6 +2,7 @@
 box_cropper/
 box_lesion_segmenter/
 serena_sample_distance_data/
+quicksegment-draw-lines/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
