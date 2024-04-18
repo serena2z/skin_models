@@ -72,7 +72,11 @@ To perform inference using our trained model, follow these steps:
   The output generated from `inference.py` will be a text file with the images and the segmented box coordinates. In particular, you'll see:
   
   - `image_path`: Column for image path
-  - `box_center`: Includes important box measurements including center coordinates, width, height, and angle of the form [[center_x, center_y],[width, height], angle]
+  - `center_x`: x-coordinate of the center of the box
+  - `center_y`: y-coordinate of the center of box
+  - `width`: width of the box
+  - `height`: height of the box
+  - `angle`: angle of rotation of the box
   - `box_points`: All 4 box corner coordinates in the form of [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
   - `box_points_square`: Same as `box_points` but resizing the corner coordinates to form a square box instead of a rectangular box.
   - `highest_score`: Score of the best fitting box.
@@ -123,7 +127,7 @@ To run inference on your images, you can use the following command:
 ```
 
 ```diff
-- `INPUT_FILE`: Path to the predictions from the lesion cropper.
+- `INPUT_FILE`: Path to the predictions from the lesion cropper or an input file that has image_path, center_x and center_y (coordinates of the center of the lesion box)
 - `MODEL`: Path to the trained model weights file.
 - `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is distance_predictions.csv.
 - `DEVICE` [OPTIONAL]: Device to use for inference, default is cpu.
