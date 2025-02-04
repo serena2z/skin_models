@@ -6,7 +6,7 @@ Link to paper:
 
 - [Installation](#installation)
 - [Lesion Segmenter](#lesion-segmenter)
-- [Distance Classifier] (#distance-classifier)
+- [Distance Classifier](#distance-classifier)
 - [Skin and Ruler Segmenters](#skin-and-ruler-segmenters)
 - [Purple Segmenter](#purple-segmenter)
 
