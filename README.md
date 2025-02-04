@@ -62,7 +62,7 @@ To perform inference using our trained model, follow these steps:
   ```
   python inference.py --img_folder IMG_FOLDER --model MODEL [--output_file OUTPUT_FILE] [--device DEVICE]
   ```
-  ```diff
+  ```
   - `IMG_FOLDER`: Path to the folder where your images are stored.
   - `MODEL`: Path to the trained model weights file.
   - `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is box_predictions.txt.
@@ -88,7 +88,7 @@ To perform inference using our trained model, follow these steps:
   ```
   box_overlay.py --input_file INPUT_FILE --save_dir SAVE_DIR [--thickness THICKNESS] [--resize]
   ```
-  ```diff
+  ```
   - `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
   - `SAVE_DIR`: Name of the output folder to save the image visualizations.
   - `THICKNESS` [OPTIONAL]: Thickness used to visualize the boundaries of the boxes, default is 2.
@@ -102,7 +102,7 @@ To perform inference using our trained model, follow these steps:
   ```
   crop_img.py --input_file INPUT_FILE --save_dir SAVE_DIR
   ```
-  ```diff
+  ```
   - `INPUT_FILE`: Path to the text file containing results from inference.py, default is box_predictions.txt.
   - `SAVE_DIR`: Name of the output folder to save the cropped image.
   ```
@@ -126,7 +126,7 @@ To run inference on your images, you can use the following command:
   python run.py --input_file INPUT_FILE --model_path MODEL_PATH [--save_path SAVE_PATH] [--device DEVICE] [--batch_size BATCH_SIZE] [--num_workers NUM_WORKERS]
 ```
 
-```diff
+```
 - `INPUT_FILE`: Path to the predictions from the lesion cropper or an input file that has image_path, center_x and center_y (coordinates of the center of the lesion box)
 - `MODEL`: Path to the trained model weights file.
 - `OUTPUT_FILE` [OPTIONAL]: Path to the output file for saving inference results, default is distance_predictions.csv.
